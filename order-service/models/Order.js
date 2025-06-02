@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
   productId: {
@@ -16,13 +16,18 @@ const orderSchema = new mongoose.Schema({
     required: true,
     min: [1, 'Số lượng phải lớn hơn 0']
   },
+  amount: {
+    type: Number,
+    required: true,
+    min: [0, 'Tổng tiền không hợp lệ']
+  },
   status: {
     type: String,
-    enum: ['PENDING', 'CONFIRMED', 'CANCELLED'],
+    enum: ['PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'],
     default: 'PENDING'
   }
 }, {
-  timestamps: true // tự tạo createdAt & updatedAt
-})
+  timestamps: true
+});
 
-module.exports = mongoose.model('Order', orderSchema)
+module.exports = mongoose.model('Order', orderSchema);

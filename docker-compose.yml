@@ -56,7 +56,28 @@ services:
       - PORT=3003
       - MONGO_URI=mongodb://mongo-order:27017/order_db
       - PRODUCT_SERVICE_URL=http://product-service:3002/api/products
+      - PAYMENT_SERVICE_URL=http://payment-service:3004/api/payments
       - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
     depends_on:
       - mongo-order
+      - product-service
+
+  mongo-payment:
+    image: mongo
+    container_name: mongo-payment
+    ports:
+      - "27020:27017"
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - MONGO_URI=mongodb://mongo-payment:27017/payment_db
+      - PRODUCT_SERVICE_URL=http://product-service:3002/api/products
+      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+    depends_on:
+      - mongo-payment
       - product-service

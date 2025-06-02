@@ -8,6 +8,6 @@ exports.createOrderValidator = [
 exports.updateStatusValidator = [
   body('status')
     .notEmpty().withMessage('Trạng thái là bắt buộc')
-    .isIn(['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'FAILED'])
+    .isIn(['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'FAILED', 'COMPLETED'])
     .withMessage('Trạng thái không hợp lệ')
 ]
