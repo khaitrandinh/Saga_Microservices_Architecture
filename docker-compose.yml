@@ -1,0 +1,62 @@
+
+services:
+  mongo-user:
+    image: mongo
+    container_name: mongo-user
+    ports:
+      - "27017:27017"
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - MONGO_URI=mongodb://mongo-user:27017/user_db
+      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+    depends_on:
+      - mongo-user
+
+  mongo-product:
+    image: mongo
+    container_name: mongo-product
+    ports:
+      - "27018:27017"
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - MONGO_URI=mongodb://mongo-product:27017/product_db
+      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+    depends_on:
+      - mongo-product
+
+  mongo-order:
+    image: mongo
+    container_name: mongo-order
+    ports:
+      - "27019:27017"
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - MONGO_URI=mongodb://mongo-order:27017/order_db
+      - PRODUCT_SERVICE_URL=http://product-service:3002/api/products
+      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+    depends_on:
+      - mongo-order
+      - product-service
