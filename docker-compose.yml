@@ -1,4 +1,3 @@
-
 services:
   mongo-user:
     image: mongo
@@ -10,13 +9,12 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
-
     ports:
-      - "3001:3001"
+      - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
     environment:
-      - PORT=3001
-      - MONGO_URI=mongodb://mongo-user:27017/user_db
-      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+      - PORT=${USER_SERVICE_PORT}
+      - MONGO_URI=${USER_SERVICE_MONGO_URI}
+      - JWT_SECRET=${USER_SERVICE_JWT_SECRET}
     depends_on:
       - mongo-user
 
@@ -30,13 +28,12 @@ services:
     build:
       context: ./product-service
       dockerfile: Dockerfile
-    
     ports:
-      - "3002:3002"
+      - "${PRODUCT_SERVICE_PORT}:${PRODUCT_SERVICE_PORT}"
     environment:
-      - PORT=3002
-      - MONGO_URI=mongodb://mongo-product:27017/product_db
-      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+      - PORT=${PRODUCT_SERVICE_PORT}
+      - MONGO_URI=${PRODUCT_SERVICE_MONGO_URI}
+      - JWT_SECRET=${PRODUCT_SERVICE_JWT_SECRET}
     depends_on:
       - mongo-product
 
@@ -51,13 +48,13 @@ services:
       context: ./order-service
       dockerfile: Dockerfile
     ports:
-      - "3003:3003"
+      - "${ORDER_SERVICE_PORT}:${ORDER_SERVICE_PORT}"
     environment:
-      - PORT=3003
-      - MONGO_URI=mongodb://mongo-order:27017/order_db
-      - PRODUCT_SERVICE_URL=http://product-service:3002/api/products
-      - PAYMENT_SERVICE_URL=http://payment-service:3004/api/payments
-      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+      - PORT=${ORDER_SERVICE_PORT}
+      - MONGO_URI=${ORDER_SERVICE_MONGO_URI}
+      - PRODUCT_SERVICE_URL=${ORDER_SERVICE_PRODUCT_SERVICE_URL}
+      - PAYMENT_SERVICE_URL=${ORDER_SERVICE_PAYMENT_SERVICE_URL}
+      - JWT_SECRET=${ORDER_SERVICE_JWT_SECRET}
     depends_on:
       - mongo-order
       - product-service
@@ -72,12 +69,37 @@ services:
       context: ./payment-service
       dockerfile: Dockerfile
     ports:
-      - "3004:3004"
+      - "${PAYMENT_SERVICE_PORT}:${PAYMENT_SERVICE_PORT}"
     environment:
-      - PORT=3004
-      - MONGO_URI=mongodb://mongo-payment:27017/payment_db
-      - PRODUCT_SERVICE_URL=http://product-service:3002/api/products
-      - JWT_SECRET=19sy4thcjgo2chebjcwnjx1cp9k0669lltullfupaqvykj10ip47xdag098rjc07
+      - PORT=${PAYMENT_SERVICE_PORT}
+      - MONGO_URI=${PAYMENT_SERVICE_MONGO_URI}
+      - PRODUCT_SERVICE_URL=${PAYMENT_SERVICE_PRODUCT_SERVICE_URL}
+      - JWT_SECRET=${PAYMENT_SERVICE_JWT_SECRET}
     depends_on:
       - mongo-payment
       - product-service
+  zookeeper:
+      image: confluentinc/cp-zookeeper:7.0.1
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
+      ports:
+        - "2181:2181"
+
+  kafka:
+      image: confluentinc/cp-kafka:7.0.1
+      depends_on:
+        - zookeeper
+      ports:
+        - "9092:9092"
+      environment:
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    ports: [ "8080:8080" ]
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092

@@ -1,46 +1,72 @@
 const Order = require('../models/Order');
-const axios = require('axios');
+const { sendOrderCreated } = require('../kafka/producer');
+// exports.createOrder = async (req, res) => {
+//   const { productId, quantity } = req.body;
+//   const userId = req.user.userId;
 
-const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL;
+//   try {
+//     // B1. Lấy thông tin sản phẩm để tính giá
+//     const { data: product } = await axios.get(`${PRODUCT_SERVICE_URL}/${productId}`, {
+//       headers: { Authorization: req.headers['authorization'] }
+//     });
+
+//     if (!product || product.quantity < quantity) {
+//       return res.status(400).json({ message: 'Sản phẩm không đủ hàng' });
+//     }
+
+//     const amount = Number(product.price) * Number(quantity);
+
+//     // B2. Tạo đơn hàng 
+//     const order = new Order({
+//       productId,
+//       quantity,
+//       userId,
+//       amount 
+//     });
+
+//     await order.save();
+
+//     // B3. Gửi yêu cầu giảm tồn kho
+//     await axios.patch(`${PRODUCT_SERVICE_URL}/${productId}/decrease`, {
+//       orderId: order._id,
+//       quantity
+//     }, {
+//       headers: { Authorization: req.headers['authorization'] }
+//     });
+
+//     res.status(201).json({ message: 'Đơn hàng đã tạo thành công', order });
+//   } catch (err) {
+//     console.error('Lỗi tạo đơn hàng:', err.message);
+//     res.status(500).json({ message: 'Lỗi tạo đơn hàng', error: err.message });
+//   }
+// };
 
 exports.createOrder = async (req, res) => {
-  const { productId, quantity } = req.body;
-  const userId = req.user.userId;
+  const { productId, quantity, amount } = req.body;
+  const userId = req.user?.userId || 'default-user';
 
   try {
-    // B1. Lấy thông tin sản phẩm để tính giá
-    const { data: product } = await axios.get(`${PRODUCT_SERVICE_URL}/${productId}`, {
-      headers: { Authorization: req.headers['authorization'] }
-    });
-
-    if (!product || product.quantity < quantity) {
-      return res.status(400).json({ message: 'Sản phẩm không đủ hàng' });
-    }
-
-    const amount = Number(product.price) * Number(quantity);
-
-    // B2. Tạo đơn hàng 
-    const order = new Order({
+    const order = await Order.create({
       productId,
       quantity,
+      amount,
       userId,
-      amount 
+      status: 'PENDING'
     });
 
-    await order.save();
-
-    // B3. Gửi yêu cầu giảm tồn kho
-    await axios.patch(`${PRODUCT_SERVICE_URL}/${productId}/decrease`, {
-      orderId: order._id,
-      quantity
-    }, {
-      headers: { Authorization: req.headers['authorization'] }
+    // gửi event Kafka
+    await sendOrderCreated({
+      orderId: order._id.toString(),
+      productId,
+      quantity,
+      amount,
+      userId
     });
 
-    res.status(201).json({ message: 'Đơn hàng đã tạo thành công', order });
+    res.status(201).json({ message: 'Đã tạo đơn hàng', order });
   } catch (err) {
-    console.error('Lỗi tạo đơn hàng:', err.message);
-    res.status(500).json({ message: 'Lỗi tạo đơn hàng', error: err.message });
+    console.error('Lỗi tạo order:', err);
+    res.status(500).json({ message: 'Tạo đơn hàng thất bại', error: err.message });
   }
 };
 

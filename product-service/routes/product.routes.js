@@ -5,10 +5,7 @@ const productCtrl = require('../controllers/product.controller')
 const validate = require('../middlewares/validate.middleware')
 const auth = require('../middlewares/auth.middleware')
 
-const {
-  createProductValidator,
-  decreaseQuantityValidator
-} = require('../validators/product.validator')
+const { createProductValidator } = require('../validators/product.validator')
 
 // [GET] Lấy danh sách tất cả sản phẩm
 router.get('/', productCtrl.getAllProducts)
@@ -25,20 +22,8 @@ router.post(
   productCtrl.createProduct
 )
 
-// [PATCH] Trừ số lượng tồn kho khi tạo order (gọi từ OrderService)
-router.patch(
-  '/:id/decrease',
-  auth,
-  decreaseQuantityValidator,
-  validate,
-  productCtrl.decreaseQuantity
-)
+// Các route dưới đây đã được thay thế bằng Kafka nên sẽ bỏ:
+// router.patch('/:id/decrease', ...)
+// router.patch('/rollback-quantity', ...)
 
-// [PATCH] Rollback tồn kho nếu payment thất bại
-router.patch(
-  '/rollback-quantity',
-  auth,
-  productCtrl.rollbackQuantity
-)
-
-module.exports = router
+module.exports = router // ✅ dòng này cần giữ lại để app.js dùng
