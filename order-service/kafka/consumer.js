@@ -1,10 +1,8 @@
-// const kafka = require('./kafkaClient')
-// const { sendCreatedOrder } = require('./producer')
+const kafka = require('./kafkaClient')
+const { sendCreatedOrder } = require('./producer')
 // const { sendToDLT } = require('./deadLetterProducer') 
-// const Order = require('../models/Order');
-import  { kafka } from './kafkaClient';
-import {Order} from '../models/Order';
-import {sendToDLT} from './deadLetterProducer';
+const Order = require('../models/Order');
+
 const consumer = kafka.consumer({ groupId: 'order-group' })
 
 // const runConsumer = async () => {
@@ -80,7 +78,7 @@ const startConsumer = async () => {
         }
       } catch (err) {
         // console.error('❌ Lỗi xử lý message:', err.message);
-        await sendToDLT(topic, {message: message.value.toString()}, err,);
+        // await sendToDLT(topic, {message: message.value.toString()}, err,);
       }
     }
   });

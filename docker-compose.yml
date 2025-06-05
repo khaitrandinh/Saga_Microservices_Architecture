@@ -36,7 +36,7 @@ services:
     environment:
       - PORT=${USER_SERVICE_PORT}
       - MONGO_URI=${USER_SERVICE_MONGO_URI}
-      - JWT_SECRET=${USER_SERVICE_JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       mongo-user:
         condition: service_healthy
@@ -69,7 +69,7 @@ services:
     environment:
       - PORT=${PRODUCT_SERVICE_PORT}
       - MONGO_URI=${PRODUCT_SERVICE_MONGO_URI}
-      - JWT_SECRET=${PRODUCT_SERVICE_JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       mongo-product:
         condition: service_healthy
@@ -104,7 +104,7 @@ services:
       - MONGO_URI=${ORDER_SERVICE_MONGO_URI}
       - PRODUCT_SERVICE_URL=${ORDER_SERVICE_PRODUCT_SERVICE_URL}
       - PAYMENT_SERVICE_URL=${ORDER_SERVICE_PAYMENT_SERVICE_URL}
-      - JWT_SECRET=${ORDER_SERVICE_JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
       - KAFKA_BROKERS=kafka:9092
     depends_on:
       mongo-order:
@@ -143,7 +143,7 @@ services:
       - PORT=${PAYMENT_SERVICE_PORT}
       - MONGO_URI=${PAYMENT_SERVICE_MONGO_URI}
       - PRODUCT_SERVICE_URL=${PAYMENT_SERVICE_PRODUCT_SERVICE_URL}
-      - JWT_SECRET=${PAYMENT_SERVICE_JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
       - KAFKA_BROKERS=kafka:9092
     depends_on:
       mongo-payment:

@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const orderRoutes = require('./routes/order.routes')
 const startConsumer = require('./kafka/consumer');
 const startProductConsumer = require('./kafka/productConsumer');
-import { connectDLTProducer } from './kafka/deadLetterProducer';  
+// const connectDLTProducer = require('./kafka/deadLetterProducer');  
 const app = express()
 
 app.use(express.json())
@@ -16,7 +16,7 @@ mongoose.connect(process.env.MONGO_URI)
     console.log('Connected to MongoDB')
     startProductConsumer();
     startConsumer();
-    connectDLTProducer();
+    // connectDLTProducer();
   })
   .then(() => {
     app.listen(process.env.PORT, () =>
