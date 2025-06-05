@@ -83,7 +83,7 @@ micro/
 
 ---
 
-## 🚀 Cách cài đặt & chạy hệ thống
+##  Cách cài đặt & chạy hệ thống
 
 ### 1. Yêu cầu
 - Đã cài đặt Docker và Docker Compose trên máy.
@@ -126,7 +126,7 @@ docker-compose down
 ### product-service
 - `GET /api/products` — Lấy danh sách sản phẩm
 - `POST /api/products` — Thêm sản phẩm (cần JWT)
-- `PATCH /api/products/:id/decrease` — Trừ tồn kho khi đặt hàng
+
 
 ### order-service
 - `POST /api/orders` — Tạo đơn hàng (cần JWT)
