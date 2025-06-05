@@ -16,7 +16,7 @@ const startConsumer = async () => {
 
       const { orderId, productId, quantity, userId, amount  } = data;
       
-      console.log(`📥 Nhận message: ${eventType}`, data);
+      // console.log(`Nhận message: ${eventType}`, data);
       try {
         await Payment.create({
           orderId,
@@ -28,7 +28,7 @@ const startConsumer = async () => {
         console.log(`Payment success for order ${orderId}`);
         await sendPaymentEvent('payment-success', { orderId, userId });
       } catch (err) {
-        console.error('❌ Lỗi thanh toán:', err.message);
+        console.error('Lỗi thanh toán:', err.message);
         await sendPaymentEvent('payment-failed', {
           orderId,
           userId,

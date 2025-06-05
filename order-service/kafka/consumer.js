@@ -1,9 +1,10 @@
-const kafka = require('./kafkaClient')
+// const kafka = require('./kafkaClient')
 // const { sendCreatedOrder } = require('./producer')
 // const { sendToDLT } = require('./deadLetterProducer') 
-const Order = require('../models/Order');
-
-
+// const Order = require('../models/Order');
+import  { kafka } from './kafkaClient';
+import {Order} from '../models/Order';
+import {sendToDLT} from './deadLetterProducer';
 const consumer = kafka.consumer({ groupId: 'order-group' })
 
 // const runConsumer = async () => {
@@ -57,7 +58,7 @@ const startConsumer = async () => {
   await consumer.run({
     eachMessage: async ({ topic, message }) => {
       const { eventType, data } = JSON.parse(message.value.toString());
-      console.log(`📥 Nhận message: ${eventType}`, data);
+      console.log(`Nhận message: ${eventType}`, data);
 
       try {
         if (!data.orderId) return;
@@ -78,7 +79,8 @@ const startConsumer = async () => {
           await Order.findByIdAndUpdate(data.orderId, { status: 'FAILED' });
         }
       } catch (err) {
-        console.error('❌ Lỗi xử lý message:', err.message);
+        // console.error('❌ Lỗi xử lý message:', err.message);
+        await sendToDLT(topic, {message: message.value.toString()}, err,);
       }
     }
   });
