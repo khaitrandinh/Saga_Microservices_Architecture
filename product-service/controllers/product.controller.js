@@ -1,5 +1,5 @@
 const Product = require('../models/Product')
-const axios = require('axios');
+const { sendProductEvent } = require('../kafka/producer');
 
 exports.getAllProducts = async (req, res) => {
   const products = await Product.find()
@@ -17,11 +17,19 @@ exports.getProductById = async (req, res) => {
 }
 
 exports.createProduct = async (req, res) => {
-  const { name, price, quantity } = req.body
-  const product = new Product({ name, price, quantity })
-  await product.save()
-  res.status(201).json(product)
-}
+  const { name, price, quantity } = req.body;
+  const product = new Product({ name, price, quantity });
+  await product.save();
+
+  await sendProductEvent('product-created', {
+    productId: product._id.toString(),
+    name,
+    price,
+    quantity
+  });
+
+  res.status(201).json(product);
+};
 
 // exports.decreaseQuantity = async (req, res) => {
 //   const { orderId, quantity } = req.body;

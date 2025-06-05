@@ -3,6 +3,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const orderRoutes = require('./routes/order.routes')
 const startConsumer = require('./kafka/consumer');
+const startProductConsumer = require('./kafka/productConsumer');
 
 const app = express()
 
@@ -13,7 +14,8 @@ app.use('/api/orders', orderRoutes)
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB')
-     startConsumer();
+    startProductConsumer();
+    startConsumer();
   })
   .then(() => {
     app.listen(process.env.PORT, () =>

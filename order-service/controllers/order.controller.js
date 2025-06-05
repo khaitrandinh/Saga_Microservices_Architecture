@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const { sendOrderCreated } = require('../kafka/producer');
+const ProductSnapshot = require('../models/productSnapshot');
 // exports.createOrder = async (req, res) => {
 //   const { productId, quantity } = req.body;
 //   const userId = req.user.userId;
@@ -42,9 +43,10 @@ const { sendOrderCreated } = require('../kafka/producer');
 // };
 
 exports.createOrder = async (req, res) => {
-  const { productId, quantity, amount } = req.body;
+  const { productId, quantity } = req.body;
   const userId = req.user?.userId || 'default-user';
-
+  const product = await ProductSnapshot.findOne({ productId });
+  const amount = product.price * quantity; 
   try {
     const order = await Order.create({
       productId,

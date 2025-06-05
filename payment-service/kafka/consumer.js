@@ -14,9 +14,9 @@ const startConsumer = async () => {
 
       if (eventType !== 'inventory-confirmed') return;
 
-      const { orderId, productId, quantity, userId } = data;
-      const amount = 1000 * quantity; // ❗Giả định giá cố định, hoặc fetch từ DB nếu cần
-
+      const { orderId, productId, quantity, userId, amount  } = data;
+      
+      console.log(`📥 Nhận message: ${eventType}`, data);
       try {
         await Payment.create({
           orderId,
@@ -25,14 +25,21 @@ const startConsumer = async () => {
           status: 'PAID'
         });
 
-        console.log(`✅ Payment success for order ${orderId}`);
+        console.log(`Payment success for order ${orderId}`);
         await sendPaymentEvent('payment-success', { orderId, userId });
       } catch (err) {
         console.error('❌ Lỗi thanh toán:', err.message);
-        await sendPaymentEvent('payment-failed', { orderId, userId });
+        await sendPaymentEvent('payment-failed', {
+          orderId,
+          userId,
+          productId,
+          quantity
+        });
+
       }
     }
   });
 };
+
 
 module.exports = startConsumer;

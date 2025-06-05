@@ -3,7 +3,7 @@ const producer = kafka.producer()
 
 const connectDLTProducer = async () => {
   await producer.connect()
-  console.log('🛑 DLT Producer connected')
+  console.log('DLT Producer connected')
 }
 
 const sendToDLT = async (originTopic, rawMessage, errorInfo) => {
@@ -21,7 +21,7 @@ const sendToDLT = async (originTopic, rawMessage, errorInfo) => {
     ]
   })
 
-  console.log('🚨 Message sent to DLT:', rawMessage.value.toString())
+  console.log('Message sent to DLT:', rawMessage.value.toString())
 }
 
 module.exports = { connectDLTProducer, sendToDLT }

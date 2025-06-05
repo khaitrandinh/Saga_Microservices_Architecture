@@ -1,6 +1,6 @@
 const kafka = require('./kafkaClient')
-const { sendCreatedOrder } = require('./producer')
-const { sendToDLT } = require('./deadLetterProducer') 
+// const { sendCreatedOrder } = require('./producer')
+// const { sendToDLT } = require('./deadLetterProducer') 
 const Order = require('../models/Order');
 
 
