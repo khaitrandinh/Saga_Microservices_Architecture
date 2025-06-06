@@ -1,6 +1,6 @@
 # Microservices Example
 
-## 🗺️ Kiến trúc tổng quan
+## Kiến trúc tổng quan
 
 ```
 +----------------+         +------------------+         +-------------------+
@@ -29,12 +29,23 @@
 - **Tất cả các service** đều sử dụng MongoDB riêng biệt (có thể dùng chung 1 instance nhưng khác database).
 
 ---
+##  Technology Stack
+Node.js / Express.js
 
+MongoDB
+
+Kafka (event-driven communication)
+
+Docker / Docker Compose
+
+JWT for authenticatio
 ## 🗂️ Cấu trúc thư mục dự án
 
 ```
 micro/
 ├── docker-compose.yml
+├── init-kafka.sh
+├── .env.example
 ├── README.md
 ├── LICENSE
 ├── .gitignore
@@ -48,7 +59,11 @@ micro/
 │   ├── routes/
 │   ├── middlewares/
 │   ├── validators/
-│   └── ...
+│   ├── kafka/
+│   │   └── comsumer.js
+│   │   └── kafkaClient.js
+│   │   └── producer.js
+│   │   └── productConsumer.js
 ├── product-service/
 │   ├── app.js
 │   ├── package.json
@@ -58,7 +73,10 @@ micro/
 │   ├── routes/
 │   ├── middlewares/
 │   ├── validators/
-│   └── ...
+│   ├── kafka/
+│   │   └── comsumer.js
+│   │   └── kafkaClient.js
+│   │   └── producer.js
 ├── order-service/
 │   ├── app.js
 │   ├── package.json
@@ -68,7 +86,10 @@ micro/
 │   ├── routes/
 │   ├── middlewares/
 │   ├── validators/
-│   └── ...
+│   ├── kafka/
+│   │   └── comsumer.js
+│   │   └── kafkaClient.js
+│   │   └── producer.js
 ├── payment-service/
 │   ├── app.js
 │   ├── package.json
@@ -77,8 +98,11 @@ micro/
 │   ├── models/
 │   ├── routes/
 │   ├── middlewares/
-│   └── ...
-└── ...
+│   ├── kafka/
+│   │   └── comsumer.js
+│   │   └── kafkaClient.js
+│   │   └── producer.js
+
 ```
 
 ---
