@@ -3,9 +3,6 @@ const kafka = require('./kafkaClient');
 const consumer = kafka.consumer({ groupId: 'order-product-group' });
 
 const startProductConsumer = async () => {
-  console.log('🕒 Đợi Kafka sẵn sàng...');
-  await new Promise(resolve => setTimeout(resolve, 8000));
-
   
   await consumer.connect();
   await consumer.subscribe({ topic: 'product-topic', fromBeginning: true });
@@ -31,7 +28,7 @@ const startProductConsumer = async () => {
           console.log(`Synced product snapshot: ${data.productId}`);
         }
       } catch (err) {
-        console.error('❌ Lỗi sync product:', err.message);
+        console.error('Lỗi sync product:', err.message);
       }
     }
   });

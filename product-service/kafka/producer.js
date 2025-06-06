@@ -1,4 +1,3 @@
-// const { Kafka } = require('kafkajs');
 const kafka = require('./kafkaClient'); 
 const producer = kafka.producer();
 

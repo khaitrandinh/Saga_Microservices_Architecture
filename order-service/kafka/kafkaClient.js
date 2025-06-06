@@ -1,11 +1,10 @@
 const { Kafka, logLevel } = require('kafkajs')
-// import {Kafka, logLevel} from 'kafkajs'
 
 const kafka = new Kafka({
   clientId: 'order-service',
   brokers: ['kafka:9092'],
   retry: {
-    initialRetryTime: 300,  // ms
+    initialRetryTime: 300,  
     retries: 10,             
   },
   logLevel: logLevel.INFO,

@@ -1,7 +1,7 @@
 const Product = require('../models/Product');
 const { sendInventoryEvent } = require('./producer');
 const kafka = require('./kafkaClient');
-const axios = require('axios');
+
 
 const consumer = kafka.consumer({ groupId: 'product-group' });
 
