@@ -1,10 +1,77 @@
 const Product = require('../models/Product')
 const { sendProductEvent } = require('../kafka/producer');
+const redisClient = require('../redisClient');
 
 exports.getAllProducts = async (req, res) => {
+  if (process.env.NODE_ENV === 'development') console.time('getAllProducts');
+
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 50); // giới hạn limit để tránh abuse
+    const skip = (page - 1) * limit;
+
+    const cacheKey = `products:page:${page}:limit:${limit}`;
+    const countKey = 'products:total';
+
+    // 1. Kiểm tra cache nội dung trang
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      if (process.env.NODE_ENV === 'development') console.timeEnd('getAllProducts');
+      return res.json(JSON.parse(cached));
+    }
+
+    // 2. Truy vấn dữ liệu song song: data + total
+    const [products, totalCached] = await Promise.all([
+      Product.find()
+        .skip(skip)
+        .limit(limit)
+        .select('name price quantity')  // chỉ lấy field cần thiết
+        .lean(),
+      redisClient.get(countKey)
+    ]);
+
+    let total;
+    if (totalCached) {
+      total = parseInt(totalCached);
+    } else {
+      total = await Product.countDocuments();
+      await redisClient.set(countKey, total.toString(), { EX: 300 }); // cache 5 phút
+    }
+
+    const response = {
+      data: products,
+      pagination: {
+        total: Number(total),
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+
+    // 3. Cache kết quả + track key
+    const ttl = 120 + Math.floor(Math.random() * 30); // 120–150s
+    await Promise.all([
+      redisClient.set(cacheKey, JSON.stringify(response), { EX: ttl }),
+      redisClient.sAdd('products:cachedPages', cacheKey)
+    ]);
+
+    // 4. (Tùy chọn) Thêm Cache-Control header
+    res.set('Cache-Control', 'public, max-age=30'); // cho phép browser/CDN cache
+
+    if (process.env.NODE_ENV === 'development') console.timeEnd('getAllProducts');
+    res.json(response);
+  } catch (err) {
+    console.error('❌ Lỗi lấy sản phẩm:', err);
+    res.status(500).json({ message: 'Lỗi server' });
+  }
+};
+
+
+exports.getAllProductsTest = async (req, res) => {
   const products = await Product.find()
   res.json(products)
 }
+
 
 exports.getProductById = async (req, res) => {
   try {
@@ -17,6 +84,7 @@ exports.getProductById = async (req, res) => {
 }
 
 exports.createProduct = async (req, res) => {
+  await redisClient.del('all-products');
   const { name, price, quantity } = req.body;
   const product = new Product({ name, price, quantity });
   await product.save();

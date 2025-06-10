@@ -14,6 +14,7 @@ app.use('/api/products', productRoutes)
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
+    
     console.log('Connected to MongoDB')
     startConsumer();
   })

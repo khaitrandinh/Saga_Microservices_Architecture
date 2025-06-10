@@ -5,7 +5,7 @@ const { sendPaymentEvent } = require('../kafka/producer');
 exports.createPayment = async (req, res) => {
   const { orderId, amount, userId } = req.body;
 
-  // Kiểm tra định dạng ID
+  
   if (
     !mongoose.Types.ObjectId.isValid(orderId) ||
     !mongoose.Types.ObjectId.isValid(userId)
@@ -18,7 +18,7 @@ exports.createPayment = async (req, res) => {
   }
 
   try {
-    // Lưu vào DB
+    
     await Payment.create({
       orderId,
       amount,
@@ -31,7 +31,7 @@ exports.createPayment = async (req, res) => {
 
     res.json({ message: 'Thanh toán thành công' });
   } catch (err) {
-    console.error('❌ Lỗi khi thanh toán:', err.message);
+    console.error('Lỗi khi thanh toán:', err.message);
 
     // Gửi Kafka event thất bại
     await sendPaymentEvent('payment-failed', { orderId, userId });

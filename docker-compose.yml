@@ -70,8 +70,12 @@ services:
       - PORT=${PRODUCT_SERVICE_PORT}
       - MONGO_URI=${PRODUCT_SERVICE_MONGO_URI}
       - JWT_SECRET=${JWT_SECRET}
+      - REDIS_URL=${REDIS_URL}
+
     depends_on:
       mongo-product:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - microservices-network
@@ -220,3 +224,16 @@ services:
     networks:
       - microservices-network
     restart: unless-stopped
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+

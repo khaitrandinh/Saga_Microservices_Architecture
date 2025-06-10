@@ -9,6 +9,8 @@ const { createProductValidator } = require('../validators/product.validator')
 
 // [GET] Lấy danh sách tất cả sản phẩm
 router.get('/', productCtrl.getAllProducts)
+//comparation with route above
+router.get('/all', productCtrl.getAllProductsTest)
 
 // [GET] Lấy thông tin 1 sản phẩm theo ID
 router.get('/:id', productCtrl.getProductById)
@@ -22,8 +24,5 @@ router.post(
   productCtrl.createProduct
 )
 
-// Các route dưới đây đã được thay thế bằng Kafka nên sẽ bỏ:
-// router.patch('/:id/decrease', ...)
-// router.patch('/rollback-quantity', ...)
 
-module.exports = router // ✅ dòng này cần giữ lại để app.js dùng
+module.exports = router 
